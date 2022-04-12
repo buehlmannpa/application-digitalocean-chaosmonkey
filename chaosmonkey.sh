@@ -6,7 +6,7 @@
 #
 #----------------------------------------------------------------------------------------------
 # IMPLEMENTATION
-#   version         0.0.1
+#   version         1.0.0
 #   author          Patrick Bühlmann
 #   copyright       Copyright (c) www.patrick21.ch
 #   license         GNU General Public License
@@ -37,6 +37,7 @@ echo -e "\033[0m"
 # var declaration
 #----------------------------------------------------------------------------------------------
 LOG_DIR="/data/chaos-monkey"
+DOWNLOAD_DIR="/home/chaosmonkey/download"
 HOME_DIR="/home/chaosmonkey/chaosmonkey-app"
 
 CONFIG_EXCLUDED_WEEKDAYS=`cat $HOME_DIR/config | grep excluded-weekdays | sed 's/.*=//'`
@@ -45,8 +46,6 @@ CONFIG_EXCLUDE_NEW_PODS=`cat $HOME_DIR/config | grep exclude-new-pods | sed 's/.
 CONFIG_DELETE_PERIOD=`cat $HOME_DIR/config | grep delete-period | sed 's/.*=//'`
 
 DAY_OF_WEEK=`date | awk '{print $1}'`
-
-ALL_KUBERNETES_NAMESPACES=($(kubectl get namespaces | grep -v NAME | awk '{print $1}'))
 
 CRONJOB_NAME="chaosmonkey_job"
 
@@ -70,7 +69,7 @@ BACKGROUND_RED='\033[0;41m'
 
 
 # Connect doctl with the DigitalOcean account
-doctl auth init -t $(cat $HOME_DIR/do_token)
+$DOWNLOAD_DIR/doctl auth init -t $(cat $HOME_DIR/do_token)
 
 # Call "get_kubeconfig" script to get the current kubeconfig of all DigitalOcean
 # kubernetes cluster
@@ -78,6 +77,9 @@ source $HOME_DIR/get_kubeconfig.sh
 
 echo "- - - - - - - - - - - - - - - -"
 
+
+# var needs to be declared after doctl and kubectl config
+ALL_KUBERNETES_NAMESPACES=($(kubectl get namespaces | grep -v NAME | awk '{print $1}'))
 
 
 #----------------------------------------------------------------------------------------------
@@ -219,7 +221,7 @@ case $CONFIG_PERIOD_UNIT in
         if [[ $CONFIG_PERIOD_NUMBER -lt 60 ]];
         then
             info_output "Pods where automatically killed every "$CONFIG_PERIOD_NUMBER$CONFIG_PERIOD_UNIT
-            echo "*/${CONFIG_PERIOD_NUMBER} * * * * source $HOME_DIR/chaosmonkey.sh" > $HOME_DIR/$CRONJOB_NAME
+            echo "*/${CONFIG_PERIOD_NUMBER} * * * * $HOME_DIR/chaosmonkey.sh" > $HOME_DIR/$CRONJOB_NAME
             activate_cronjob
         fi
         ;;
@@ -228,7 +230,7 @@ case $CONFIG_PERIOD_UNIT in
         if [[ $CONFIG_PERIOD_NUMBER -lt 24 ]];
         then
             info_output "Pods where automatically killed every "$CONFIG_PERIOD_NUMBER$CONFIG_PERIOD_UNIT
-            echo "* */${CONFIG_PERIOD_NUMBER} * * * source $HOME_DIR/chaosmonkey.sh" > $HOME_DIR/$CRONJOB_NAME
+            echo "* */${CONFIG_PERIOD_NUMBER} * * * $HOME_DIR/chaosmonkey.sh" > $HOME_DIR/$CRONJOB_NAME
             activate_cronjob
         fi
         ;;
@@ -237,7 +239,7 @@ case $CONFIG_PERIOD_UNIT in
         if [[ $CONFIG_PERIOD_NUMBER -lt 32 ]]
         then
             info_output "Pods where automatically killed every "$CONFIG_PERIOD_NUMBER$CONFIG_PERIOD_UNIT
-            echo "* * */${CONFIG_PERIOD_NUMBER} * * source $HOME_DIR/chaosmonkey.sh" > $HOME_DIR/$CRONJOB_NAME
+            echo "* * */${CONFIG_PERIOD_NUMBER} * * $HOME_DIR/chaosmonkey.sh" > $HOME_DIR/$CRONJOB_NAME
             activate_cronjob
         fi
         ;;
