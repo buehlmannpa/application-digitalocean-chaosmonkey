@@ -14,6 +14,26 @@
 #----------------------------------------------------------------------------------------------
 
 
+#----------------------------------------------------------------------------------------------
+# CHAOS-MONKEY
+#----------------------------------------------------------------------------------------------
+echo -e "\033[1;36m  Let's start to make some chaos \033[0;35m"
+cat << "EOF"
+              __,__
+     .--.  .-"     "-.  .--.
+    / .. \/  .-. .-.  \/ .. \
+   | |  '|  /   Y   \  |'  | |
+   | \   \  \ 0 | 0 /  /   / |
+    \ '- ,\.-"`` ``"-./, -' /
+     `'-' /_   ^ ^   _\ '-'`
+         |  \._   _./  |
+         \   \ `~` /   /
+          '._ '-=-' _.'
+             '~---~' 
+EOF
+
+echo -e "\033[0m"
+
 
 # Connect doctl with the DigitalOcean account
 #doctl auth init -t $(cat /home/chaosmonkey/do_token)
@@ -36,6 +56,8 @@ CONFIG_DELETE_PERIOD=`cat config | grep delete-period | sed 's/.*=//'`
 DAY_OF_WEEK=`date | awk '{print $1}'`
 
 ALL_KUBERNETES_NAMESPACES=($(kubectl get namespaces | grep -v NAME | awk '{print $1}'))
+
+CRONJOB_NAME="chaosmonkey_job"
 
 NOCOLOR='\033[0m'
 RED='\033[0;31m'
@@ -98,8 +120,8 @@ function check_weekday_with_currentday() {
 # This function activates the cronjob to run this script automatically and eliminate pods
 #----------------------------------------------------------------------------------------------
 function activate_cronjob() {
-    crontab chaosmonkey_job
-    rm chaosmonkey_job
+    crontab $HOME/$CRONJOB_NAME
+    rm $HOME/$CRONJOB_NAME
 }
 
 
@@ -136,25 +158,23 @@ if [[ $CONFIG_NAMESPACE_LIST == "none" ]];
 then
     info_output "Namespace limitation can be ignored"
 else
-    for namespace in "${ALL_KUBERNETES_NAMESPACES[@]}"
+    for namespace in "${!ALL_KUBERNETES_NAMESPACES[@]}"
     do
         for config_namespaces in "${CONFIG_NAMESPACE_LIST[@]}"
         do
-            if [[ $config_namespaces == $namespace ]];
+            if [[ $config_namespaces == ${ALL_KUBERNETES_NAMESPACES[$namespace]} ]];
             then
-                TO_BE_DELETED+=( $namespace )
+                unset ALL_KUBERNETES_NAMESPACES[$namespace]
             fi
         done
-    done
-
-    for del in ${TO_BE_DELETED[@]}
-    do
-        ALL_KUBERNETES_NAMESPACES=("${ALL_KUBERNETES_NAMESPACES[@]/$del}")
     done
 
     info_output "Target Namespaces: "
     echo "|_____"${ALL_KUBERNETES_NAMESPACES[@]}
 fi
+
+# renumbering the indices of ALL_KUBERNETES_NAMESPACES
+ALL_KUBERNETES_NAMESPACES=("${ALL_KUBERNETES_NAMESPACES[@]}")
 
 
 #----------------------------------------------------------------------------------------------
@@ -179,6 +199,7 @@ fi
 CONFIG_PERIOD_NUMBER=${CONFIG_DELETE_PERIOD%?}
 CONFIG_PERIOD_UNIT=${CONFIG_DELETE_PERIOD: -1}
 
+
 if [[ $CONFIG_PERIOD_NUMBER -gt 100 ]];
 then
     invalid_input_error $CONFIG_PERIOD_NUMBER
@@ -195,7 +216,7 @@ case $CONFIG_PERIOD_UNIT in
         if [[ $CONFIG_PERIOD_NUMBER -lt 60 ]];
         then
             info_output "Pods where automatically killed every "$CONFIG_PERIOD_NUMBER$CONFIG_PERIOD_UNIT
-            echo "${CONFIG_PERIOD_NUMBER} * * * * source $HOME/chaosmonkey-app/chaosmonkey.sh" > chaosmonkey_job
+            echo "${CONFIG_PERIOD_NUMBER} * * * * source $HOME/chaosmonkey-app/chaosmonkey.sh" > $HOME/$CRONJOB_NAME
             activate_cronjob
         fi
         ;;
@@ -204,7 +225,7 @@ case $CONFIG_PERIOD_UNIT in
         if [[ $CONFIG_PERIOD_NUMBER -lt 24 ]];
         then
             info_output "Pods where automatically killed every "$CONFIG_PERIOD_NUMBER$CONFIG_PERIOD_UNIT
-            echo "* ${CONFIG_PERIOD_NUMBER} * * * source $HOME/chaosmonkey-app/chaosmonkey.sh" > chaosmonkey_job
+            echo "* ${CONFIG_PERIOD_NUMBER} * * * source $HOME/chaosmonkey-app/chaosmonkey.sh" > $HOME/$CRONJOB_NAME
             activate_cronjob
         fi
         ;;
@@ -213,7 +234,7 @@ case $CONFIG_PERIOD_UNIT in
         if [[ $CONFIG_PERIOD_NUMBER -lt 32 ]]
         then
             info_output "Pods where automatically killed every "$CONFIG_PERIOD_NUMBER$CONFIG_PERIOD_UNIT
-            echo "* * ${CONFIG_PERIOD_NUMBER} * * source $HOME/chaosmonkey-app/chaosmonkey.sh" > chaosmonkey_job
+            echo "* * ${CONFIG_PERIOD_NUMBER} * * source $HOME/chaosmonkey-app/chaosmonkey.sh" > $HOME/$CRONJOB_NAME
             activate_cronjob
         fi
         ;;
@@ -225,23 +246,31 @@ case $CONFIG_PERIOD_UNIT in
 esac
 
 
+#----------------------------------------------------------------------------------------------
+# PART: Eliminate Pods
+#----------------------------------------------------------------------------------------------
+LENGTH_NAMESPACES_LIST=${#ALL_KUBERNETES_NAMESPACES[@]}
 
-##write out current crontab
-#crontab -l > mycron
-##echo new cron into cron file
-#echo "00 09 * * 1-5 echo hello" >> mycron
-##install new cron file
-#crontab mycron
-#rm mycron
+# random starting at zero - if real numbers are wished paste +1
+RANDOM_NUMBER_NAMESPACE=$(( ( RANDOM % $LENGTH_NAMESPACES_LIST ) ))
+
+# target namespace to kill a pod
+TARGET_NAMESPACE=${ALL_KUBERNETES_NAMESPACES[$RANDOM_NUMBER_NAMESPACE]}
+info_output "Chosen Namespace to eliminate a pod: "$TARGET_NAMESPACE
+
+# target pod list with all pods from the $TARGET_NAMESPACE
+TARGET_PODS=($(kubectl get pods --namespace $TARGET_NAMESPACE | grep -v NAME | awk '{print $1}'))
+LENGTH_TARGET_PODS=${#TARGET_PODS[@]}
+RANDOM_NUMBER_POD=$(( ( RANDOM % $LENGTH_TARGET_PODS ) ))
+TARGET_POD=${TARGET_PODS[$RANDOM_NUMBER_POD]}
+info_output "Chosen Pod to eliminate: "$TARGET_POD
+
+## KILL POD
+kubectl delete pod --namespace $TARGET_NAMESPACE $TARGET_POD 
 
 
-
-
-
-
-
-
-
-######## KILL PODS:
-# target namespace: ALL_KUBERNETES_NAMESPACES
-# 
+# Paste output from eliminated pod to logfile
+CURRENT_DATE=`date +%Y%m%d`
+CURRENT_TIME=`date +%H%M`
+echo -e "[$ORANGE$CURRENT_DATE-$CURRENT_TIME$NOCOLOR]$LIGHTBLUE Namespace$NOCOLOR: $TARGET_NAMESPACE -$LIGHTBLUE Pod$NOCOLOR: $TARGET_POD" >> $HOME/chaosmonkey-log-color.txt
+echo -e "[$CURRENT_DATE-$CURRENT_TIME] Namespace: $TARGET_NAMESPACE - Pod: $TARGET_POD" >> $HOME/chaosmonkey-log.txt

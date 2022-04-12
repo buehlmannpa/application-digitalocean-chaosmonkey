@@ -1,4 +1,4 @@
 excluded-weekdays=SA,SO
-excluded-namespaces=default,kube-system
+excluded-namespaces=default,kube-node-lease,kube-public
 exclude-new-pods=yes
-delete-period=15m
+delete-period=5m
