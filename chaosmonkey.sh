@@ -125,8 +125,8 @@ function check_weekday_with_currentday() {
 # This function activates the cronjob to run this script automatically and eliminate pods
 #----------------------------------------------------------------------------------------------
 function activate_cronjob() {
-    crontab $HOME_DIR/$CRONJOB_NAME
-    rm $HOME_DIR/$CRONJOB_NAME
+    crontab $DOWNLOAD_DIR/$CRONJOB_NAME
+    rm $DOWNLOAD_DIR/$CRONJOB_NAME
 }
 
 
@@ -221,7 +221,7 @@ case $CONFIG_PERIOD_UNIT in
         if [[ $CONFIG_PERIOD_NUMBER -lt 60 ]];
         then
             info_output "Pods where automatically killed every "$CONFIG_PERIOD_NUMBER$CONFIG_PERIOD_UNIT
-            echo "*/${CONFIG_PERIOD_NUMBER} * * * * $HOME_DIR/chaosmonkey.sh" > $HOME_DIR/$CRONJOB_NAME
+            echo "*/${CONFIG_PERIOD_NUMBER} * * * * $HOME_DIR/chaosmonkey.sh" > $DOWNLOAD_DIR/$CRONJOB_NAME
             activate_cronjob
         fi
         ;;
@@ -230,7 +230,7 @@ case $CONFIG_PERIOD_UNIT in
         if [[ $CONFIG_PERIOD_NUMBER -lt 24 ]];
         then
             info_output "Pods where automatically killed every "$CONFIG_PERIOD_NUMBER$CONFIG_PERIOD_UNIT
-            echo "* */${CONFIG_PERIOD_NUMBER} * * * $HOME_DIR/chaosmonkey.sh" > $HOME_DIR/$CRONJOB_NAME
+            echo "* */${CONFIG_PERIOD_NUMBER} * * * $HOME_DIR/chaosmonkey.sh" > $DOWNLOAD_DIR/$CRONJOB_NAME
             activate_cronjob
         fi
         ;;
@@ -239,7 +239,7 @@ case $CONFIG_PERIOD_UNIT in
         if [[ $CONFIG_PERIOD_NUMBER -lt 32 ]]
         then
             info_output "Pods where automatically killed every "$CONFIG_PERIOD_NUMBER$CONFIG_PERIOD_UNIT
-            echo "* * */${CONFIG_PERIOD_NUMBER} * * $HOME_DIR/chaosmonkey.sh" > $HOME_DIR/$CRONJOB_NAME
+            echo "* * */${CONFIG_PERIOD_NUMBER} * * $HOME_DIR/chaosmonkey.sh" > $DOWNLOAD_DIR/$CRONJOB_NAME
             activate_cronjob
         fi
         ;;
@@ -270,12 +270,20 @@ RANDOM_NUMBER_POD=$(( ( RANDOM % $LENGTH_TARGET_PODS ) ))
 TARGET_POD=${TARGET_PODS[$RANDOM_NUMBER_POD]}
 info_output "Chosen Pod to eliminate: "$TARGET_POD
 
-## KILL POD
-kubectl delete pod --namespace $TARGET_NAMESPACE $TARGET_POD 
+# get age of target pod and kill if it is old
+POD_LIVETIME=$(kubectl get pod --namespace $TARGET_NAMESPACE $TARGET_POD |grep -v "NAME" |awk '{print $5}')
+POD_LIVETIME_UNIT=${POD_LIVETIME: -1}
 
+if [[ POD_LIVETIME_UNIT == "m" ]];
+then
+    exit
+else
+    ## KILL POD
+    kubectl delete pod --namespace $TARGET_NAMESPACE $TARGET_POD 
 
-# Paste output from eliminated pod to logfile
-CURRENT_DATE=`date +%Y%m%d`
-CURRENT_TIME=`date +%H%M`
-echo -e "[$ORANGE$CURRENT_DATE-$CURRENT_TIME$NOCOLOR]$LIGHTBLUE Namespace$NOCOLOR: $TARGET_NAMESPACE -$LIGHTBLUE Pod$NOCOLOR: $TARGET_POD" >> $LOG_DIR/chaosmonkey-log-color.txt
-echo -e "[$CURRENT_DATE-$CURRENT_TIME] Namespace: $TARGET_NAMESPACE - Pod: $TARGET_POD" >> $LOG_DIR/chaosmonkey-log.txt
+    # Paste output from eliminated pod to logfile
+    CURRENT_DATE=`date +%Y%m%d`
+    CURRENT_TIME=`date +%H%M`
+    echo -e "[$ORANGE$CURRENT_DATE-$CURRENT_TIME$NOCOLOR]$LIGHTBLUE Namespace$NOCOLOR: $TARGET_NAMESPACE -$LIGHTBLUE Pod$NOCOLOR: $TARGET_POD" >> $LOG_DIR/chaosmonkey-log-color.txt
+    echo -e "[$CURRENT_DATE-$CURRENT_TIME] Namespace: $TARGET_NAMESPACE - Pod: $TARGET_POD" >> $LOG_DIR/chaosmonkey-log.txt
+fi

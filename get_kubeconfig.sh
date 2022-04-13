@@ -20,4 +20,4 @@ DOWNLOAD_DIR="/home/chaosmonkey/download"
 #----------------------------------------------------------------------------------------------
 # Kubeconfig for one single cluster
 #----------------------------------------------------------------------------------------------
-doctl kubernetes cluster kubeconfig save k8s-cluter-c1-fra1-1227
+$DOWNLOAD_DIR/doctl kubernetes cluster kubeconfig save k8s-cluter-c1-fra1-1227
