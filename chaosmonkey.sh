@@ -44,6 +44,7 @@ CONFIG_EXCLUDED_WEEKDAYS=`cat $HOME_DIR/config | grep excluded-weekdays | sed 's
 CONFIG_EXCLUDED_NAMESPACES=`cat $HOME_DIR/config | grep excluded-namespaces | sed 's/.*=//'`
 CONFIG_EXCLUDE_NEW_PODS=`cat $HOME_DIR/config | grep exclude-new-pods | sed 's/.*=//'`
 CONFIG_DELETE_PERIOD=`cat $HOME_DIR/config | grep delete-period | sed 's/.*=//'`
+CONFIG_BACKUP_TIME=`cat $HOME_DIR/config | grep backup-time | sed 's/.*=//'`
 
 DAY_OF_WEEK=`date | awk '{print $1}'`
 
@@ -126,6 +127,7 @@ function check_weekday_with_currentday() {
 #----------------------------------------------------------------------------------------------
 function activate_cronjob() {
     crontab $DOWNLOAD_DIR/$CRONJOB_NAME
+    rm $DOWNLOAD_DIR/$CRONJOB_NAME
 }
 
 
@@ -196,6 +198,21 @@ else
 fi
 
 
+#----------------------------------------------------------------------------------------------
+# PART: check config parameter 'backup-time' and set time for cronjob
+#----------------------------------------------------------------------------------------------
+$BACKUP_HOUR=${CONFIG_BACKUP_TIME:0:2}
+$BACKUP_MINUTE=${CONFIG_BACKUP_TIME:3:2}
+
+if (( BACKUP_MINUTE >= 1 && BACKUP_MINUTE <= 23 && BACKUP_HOUR >= 1 && BACKUP_HOUR <= 23  ));
+then
+    info_output "backup-time is set to $CONFIG_BACKUP_TIME"
+    BACKUP_TIME="$BACKUP_HOUR $BACKUP_MINUTE"
+else
+    invalid_input_error "backup-time: $CONFIG_BACKUP_TIME"
+    exit
+fi
+
 
 #----------------------------------------------------------------------------------------------
 # PART: check config parameter 'delete-period' and set cronjob to run script automatically
@@ -221,6 +238,7 @@ case $CONFIG_PERIOD_UNIT in
         then
             info_output "Pods where automatically killed every "$CONFIG_PERIOD_NUMBER$CONFIG_PERIOD_UNIT
             echo "*/${CONFIG_PERIOD_NUMBER} * * * * $HOME_DIR/chaosmonkey.sh" > $DOWNLOAD_DIR/$CRONJOB_NAME
+            echo "$BACKUP_TIME $HOME_DIR/backup.sh" >> $DOWNLOAD_DIR/$CRONJOB_NAME
             activate_cronjob
         fi
         ;;
@@ -230,6 +248,7 @@ case $CONFIG_PERIOD_UNIT in
         then
             info_output "Pods where automatically killed every "$CONFIG_PERIOD_NUMBER$CONFIG_PERIOD_UNIT
             echo "* */${CONFIG_PERIOD_NUMBER} * * * $HOME_DIR/chaosmonkey.sh" > $DOWNLOAD_DIR/$CRONJOB_NAME
+            echo "$BACKUP_TIME $HOME_DIR/backup.sh" >> $DOWNLOAD_DIR/$CRONJOB_NAME
             activate_cronjob
         fi
         ;;
@@ -237,8 +256,9 @@ case $CONFIG_PERIOD_UNIT in
     "d")
         if [[ $CONFIG_PERIOD_NUMBER -lt 32 ]]
         then
-            info_output "Pods where automatically killed every "$CONFIG_PERIOD_NUMBER$CONFIG_PERIOD_UNIT
+            info_output "Pods where automatically killed every "$CONFIG_PERIOD_NUMBER$CONFIG_PERIOD_UNIT 
             echo "* * */${CONFIG_PERIOD_NUMBER} * * $HOME_DIR/chaosmonkey.sh" > $DOWNLOAD_DIR/$CRONJOB_NAME
+            echo "$BACKUP_TIME $HOME_DIR/backup.sh" >> $DOWNLOAD_DIR/$CRONJOB_NAME
             activate_cronjob
         fi
         ;;

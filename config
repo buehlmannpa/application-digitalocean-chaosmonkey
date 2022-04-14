@@ -2,3 +2,4 @@ excluded-weekdays=SA,SO
 excluded-namespaces=default,kube-node-lease,kube-public
 exclude-new-pods=yes
 delete-period=5m
+backup-time=23:23
