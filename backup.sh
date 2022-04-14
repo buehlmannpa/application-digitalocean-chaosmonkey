@@ -19,7 +19,7 @@ BACKUP_DIR="/data/chaos-monkey/backup"
 DOWNLOAD_DIR="/home/chaosmonkey/download"
 CURRENT_DATE=`date +%Y%m%d`
 
-CRONJOB_NAME="backup_cron"
+CRONJOB_NAME="chaosmonkey_cronjobs"
 BACKUP_TIME="23 23 * * *" #23:23
 
 
@@ -30,7 +30,6 @@ if [[ ! -f "$LOG_DIR/backup_ready" ]];
 then
     echo "$BACKUP_TIME $HOME_DIR/backup.sh" >> $DOWNLOAD_DIR/$CRONJOB_NAME
     crontab $DOWNLOAD_DIR/$CRONJOB_NAME
-    rm $DOWNLOAD_DIR/$CRONJOB_NAME
 
     touch $LOG_DIR/backup_ready
 else

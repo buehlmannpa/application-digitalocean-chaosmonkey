@@ -47,7 +47,7 @@ CONFIG_DELETE_PERIOD=`cat $HOME_DIR/config | grep delete-period | sed 's/.*=//'`
 
 DAY_OF_WEEK=`date | awk '{print $1}'`
 
-CRONJOB_NAME="chaosmonkey_job"
+CRONJOB_NAME="chaosmonkey_cronjobs"
 
 NOCOLOR='\033[0m'
 RED='\033[0;31m'
@@ -126,7 +126,6 @@ function check_weekday_with_currentday() {
 #----------------------------------------------------------------------------------------------
 function activate_cronjob() {
     crontab $DOWNLOAD_DIR/$CRONJOB_NAME
-    rm $DOWNLOAD_DIR/$CRONJOB_NAME
 }
 
 
