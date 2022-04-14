@@ -28,9 +28,6 @@ BACKUP_TIME="23 23 * * *" #23:23
 #----------------------------------------------------------------------------------------------
 if [[ ! -f "$LOG_DIR/backup_ready" ]];
 then
-    echo "$BACKUP_TIME $HOME_DIR/backup.sh" >> $DOWNLOAD_DIR/$CRONJOB_NAME
-    crontab $DOWNLOAD_DIR/$CRONJOB_NAME
-
     touch $LOG_DIR/backup_ready
 else
     echo "Backup is already initialized"

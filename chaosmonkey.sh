@@ -201,8 +201,8 @@ fi
 #----------------------------------------------------------------------------------------------
 # PART: check config parameter 'backup-time' and set time for cronjob
 #----------------------------------------------------------------------------------------------
-$BACKUP_HOUR=${CONFIG_BACKUP_TIME:0:2}
-$BACKUP_MINUTE=${CONFIG_BACKUP_TIME:3:2}
+BACKUP_HOUR=${CONFIG_BACKUP_TIME:0:2}
+BACKUP_MINUTE=${CONFIG_BACKUP_TIME:3:2}
 
 if (( BACKUP_MINUTE >= 1 && BACKUP_MINUTE <= 23 && BACKUP_HOUR >= 1 && BACKUP_HOUR <= 23  ));
 then
@@ -238,7 +238,7 @@ case $CONFIG_PERIOD_UNIT in
         then
             info_output "Pods where automatically killed every "$CONFIG_PERIOD_NUMBER$CONFIG_PERIOD_UNIT
             echo "*/${CONFIG_PERIOD_NUMBER} * * * * $HOME_DIR/chaosmonkey.sh" > $DOWNLOAD_DIR/$CRONJOB_NAME
-            echo "$BACKUP_TIME $HOME_DIR/backup.sh" >> $DOWNLOAD_DIR/$CRONJOB_NAME
+            echo "$BACKUP_TIME * * * $HOME_DIR/backup.sh" >> $DOWNLOAD_DIR/$CRONJOB_NAME
             activate_cronjob
         fi
         ;;
@@ -248,7 +248,7 @@ case $CONFIG_PERIOD_UNIT in
         then
             info_output "Pods where automatically killed every "$CONFIG_PERIOD_NUMBER$CONFIG_PERIOD_UNIT
             echo "* */${CONFIG_PERIOD_NUMBER} * * * $HOME_DIR/chaosmonkey.sh" > $DOWNLOAD_DIR/$CRONJOB_NAME
-            echo "$BACKUP_TIME $HOME_DIR/backup.sh" >> $DOWNLOAD_DIR/$CRONJOB_NAME
+            echo "$BACKUP_TIME * * * $HOME_DIR/backup.sh" >> $DOWNLOAD_DIR/$CRONJOB_NAME
             activate_cronjob
         fi
         ;;
@@ -258,7 +258,7 @@ case $CONFIG_PERIOD_UNIT in
         then
             info_output "Pods where automatically killed every "$CONFIG_PERIOD_NUMBER$CONFIG_PERIOD_UNIT 
             echo "* * */${CONFIG_PERIOD_NUMBER} * * $HOME_DIR/chaosmonkey.sh" > $DOWNLOAD_DIR/$CRONJOB_NAME
-            echo "$BACKUP_TIME $HOME_DIR/backup.sh" >> $DOWNLOAD_DIR/$CRONJOB_NAME
+            echo "$BACKUP_TIME * * * $HOME_DIR/backup.sh" >> $DOWNLOAD_DIR/$CRONJOB_NAME
             activate_cronjob
         fi
         ;;
