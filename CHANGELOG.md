@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added the functions to read and interact with the config inputs [@buehlmannpa](https://github.com/buehlmannpa).
 
 ### Changed
+- Changed the get kubeconfig mechanism to accpet a multi cluster setup @buehlmannpa](https://github.com/buehlmannpa).
 - Changed the mechanism to prof if the pod is younger than an hour [@buehlmannpa](https://github.com/buehlmannpa).
 - Changed the code where deleting the namespaces defined in the config-file from the namespaces on the k8s cluster [@buehlmannpa](https://github.com/buehlmannpa).
 

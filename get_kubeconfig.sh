@@ -16,8 +16,24 @@
 #----------------------------------------------------------------------------------------------
 DOWNLOAD_DIR="/home/chaosmonkey/download"
 
+ALL_KUBECTL_CONTEXTS=($(kubectl config get-contexts | grep -v "NAME" |awk '{print $2}'))
+ALL_KUBECTL_CONTEXTS_LENGTH=${#ALL_KUBECTL_CONTEXTS[@]}
+
 
 #----------------------------------------------------------------------------------------------
-# Kubeconfig for one single cluster
+# Kubeconfig for multiple cluster
+# If the chaos-monkey needs to maintain more the two cluster's feel free to 
+# add more clusters to the list below
 #----------------------------------------------------------------------------------------------
-$DOWNLOAD_DIR/doctl kubernetes cluster kubeconfig save k8s-cluter-c1-fra1-1227
+
+if [[ ALL_KUBECTL_CONTEXTS_LENGTH -eq 0 ]];
+then
+    $DOWNLOAD_DIR/doctl kubernetes cluster kubeconfig save k8s-cluter-c1-fra1-1227
+    $DOWNLOAD_DIR/doctl kubernetes cluster kubeconfig save k8s-cluter-c2-fra1-1227
+    # to add more clusters copy & paste the line above and edit the cluster name
+
+else
+    # input: 1 = cluster 1
+    #        2 = cluster 2
+    kubectl config use-context ${ALL_KUBECTL_CONTEXTS[$1]}
+fi

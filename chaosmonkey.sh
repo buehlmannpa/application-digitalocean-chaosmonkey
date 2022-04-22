@@ -50,6 +50,9 @@ DAY_OF_WEEK=`date | awk '{print $1}'`
 
 CRONJOB_NAME="chaosmonkey_cronjobs"
 
+ALL_KUBECTL_CONTEXTS=($(kubectl config get-contexts | grep -v "NAME" |awk '{print $2}'))
+ALL_KUBECTL_CONTEXTS_LENGTH=${#ALL_KUBECTL_CONTEXTS[@]}
+
 NOCOLOR='\033[0m'
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -276,36 +279,41 @@ esac
 #----------------------------------------------------------------------------------------------
 # PART: Eliminate Pods
 #----------------------------------------------------------------------------------------------
-LENGTH_NAMESPACES_LIST=${#ALL_KUBERNETES_NAMESPACES[@]}
 
-# random starting at zero - if real numbers are wished paste +1
-RANDOM_NUMBER_NAMESPACE=$(( ( RANDOM % $LENGTH_NAMESPACES_LIST ) ))
+for ((i = 0 ; i < $ALL_KUBECTL_CONTEXTS_LENGTH ; i++)); do
+    source $HOME_DIR/get_kubeconfig.sh $i
 
-# target namespace to kill a pod
-TARGET_NAMESPACE=${ALL_KUBERNETES_NAMESPACES[$RANDOM_NUMBER_NAMESPACE]}
-info_output "Chosen Namespace to eliminate a pod: "$TARGET_NAMESPACE
+    LENGTH_NAMESPACES_LIST=${#ALL_KUBERNETES_NAMESPACES[@]}
 
-# target pod list with all pods from the $TARGET_NAMESPACE
-TARGET_PODS=($(kubectl get pods --namespace $TARGET_NAMESPACE | grep -v NAME | awk '{print $1}'))
-LENGTH_TARGET_PODS=${#TARGET_PODS[@]}
-RANDOM_NUMBER_POD=$(( ( RANDOM % $LENGTH_TARGET_PODS ) ))
-TARGET_POD=${TARGET_PODS[$RANDOM_NUMBER_POD]}
-info_output "Chosen Pod to eliminate: "$TARGET_POD
+    # random starting at zero - if real numbers are wished paste +1
+    RANDOM_NUMBER_NAMESPACE=$(( ( RANDOM % $LENGTH_NAMESPACES_LIST ) ))
 
-# get age of target pod and kill if it is old
-POD_LIVETIME=$(kubectl get pod --namespace $TARGET_NAMESPACE $TARGET_POD |grep -v "NAME" |awk '{print $5}')
-POD_LIVETIME_UNIT=${POD_LIVETIME: -1}
+    # target namespace to kill a pod
+    TARGET_NAMESPACE=${ALL_KUBERNETES_NAMESPACES[$RANDOM_NUMBER_NAMESPACE]}
+    info_output "Chosen Namespace to eliminate a pod: "$TARGET_NAMESPACE
 
-if [[ POD_LIVETIME_UNIT == "m" ]];
-then
-    exit
-else
-    ## KILL POD
-    kubectl delete pod --namespace $TARGET_NAMESPACE $TARGET_POD 
+    # target pod list with all pods from the $TARGET_NAMESPACE
+    TARGET_PODS=($(kubectl get pods --namespace $TARGET_NAMESPACE | grep -v NAME | awk '{print $1}'))
+    LENGTH_TARGET_PODS=${#TARGET_PODS[@]}
+    RANDOM_NUMBER_POD=$(( ( RANDOM % $LENGTH_TARGET_PODS ) ))
+    TARGET_POD=${TARGET_PODS[$RANDOM_NUMBER_POD]}
+    info_output "Chosen Pod to eliminate: "$TARGET_POD
 
-    # Paste output from eliminated pod to logfile
-    CURRENT_DATE=`date +%Y%m%d`
-    CURRENT_TIME=`date +%H%M`
-    echo -e "[$ORANGE$CURRENT_DATE-$CURRENT_TIME$NOCOLOR]$LIGHTBLUE Namespace$NOCOLOR: $TARGET_NAMESPACE -$LIGHTBLUE Pod$NOCOLOR: $TARGET_POD" >> $LOG_DIR/chaosmonkey-color.log
-    echo -e "[$CURRENT_DATE-$CURRENT_TIME] Namespace: $TARGET_NAMESPACE - Pod: $TARGET_POD" >> $LOG_DIR/chaosmonkey.log
-fi
+    # get age of target pod and kill if it is old
+    POD_LIVETIME=$(kubectl get pod --namespace $TARGET_NAMESPACE $TARGET_POD |grep -v "NAME" |awk '{print $5}')
+    POD_LIVETIME_UNIT=${POD_LIVETIME: -1}
+
+    if [[ POD_LIVETIME_UNIT == "m" ]];
+    then
+        exit
+    else
+        ## KILL POD
+        kubectl delete pod --namespace $TARGET_NAMESPACE $TARGET_POD 
+
+        # Paste output from eliminated pod to logfile
+        CURRENT_DATE=`date +%Y%m%d`
+        CURRENT_TIME=`date +%H%M`
+        echo -e "[$ORANGE$CURRENT_DATE-$CURRENT_TIME$NOCOLOR]$LIGHTBLUE Cluster$NOCOLOR: ${ALL_KUBECTL_CONTEXTS[$i]} -$LIGHTBLUE Namespace$NOCOLOR: $TARGET_NAMESPACE -$LIGHTBLUE Pod$NOCOLOR: $TARGET_POD" >> $LOG_DIR/chaosmonkey-color.log
+        echo -e "[$CURRENT_DATE-$CURRENT_TIME] Cluster: ${ALL_KUBECTL_CONTEXTS[$i]} - Namespace: $TARGET_NAMESPACE - Pod: $TARGET_POD" >> $LOG_DIR/chaosmonkey.log
+    fi
+done
