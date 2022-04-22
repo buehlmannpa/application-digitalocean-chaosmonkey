@@ -39,13 +39,13 @@ else
     #chaosmonkey-log-<date>.txt
 
     # copy the current logfile into the backup folder
-    cp $LOG_DIR/chaosmonkey-log.txt $BACKUP_DIR/chaosmonkey-log-$CURRENT_DATE.txt
+    cp $LOG_DIR/chaosmonkey.log $BACKUP_DIR/chaosmonkey-log-$CURRENT_DATE.txt
 
     # copy the backup-logfile to the backup host over scp (ssh connect doesn't work at the moment)
     ####### scp <datei> buehlmannpa@195.88.87.171:/home/buehlmannpa
 
     # clear the current logfile(s)
-    echo "" > $LOG_DIR/chaosmonkey-log.txt
-    echo "" > $LOG_DIR/chaosmonkey-log-color.txt
+    echo "" > $LOG_DIR/chaosmonkey.log
+    echo "" > $LOG_DIR/chaosmonkey-color.log
 
 fi

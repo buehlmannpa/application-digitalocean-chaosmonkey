@@ -239,6 +239,7 @@ case $CONFIG_PERIOD_UNIT in
             info_output "Pods where automatically killed every "$CONFIG_PERIOD_NUMBER$CONFIG_PERIOD_UNIT
             echo "*/${CONFIG_PERIOD_NUMBER} * * * * $HOME_DIR/chaosmonkey.sh" > $DOWNLOAD_DIR/$CRONJOB_NAME
             echo "$BACKUP_TIME * * * $HOME_DIR/backup.sh" >> $DOWNLOAD_DIR/$CRONJOB_NAME
+            echo "0 0 * * * $HOME_DIR/automated_testing.sh" >> $DOWNLOAD_DIR/$CRONJOB_NAME
             activate_cronjob
         fi
         ;;
@@ -249,6 +250,7 @@ case $CONFIG_PERIOD_UNIT in
             info_output "Pods where automatically killed every "$CONFIG_PERIOD_NUMBER$CONFIG_PERIOD_UNIT
             echo "* */${CONFIG_PERIOD_NUMBER} * * * $HOME_DIR/chaosmonkey.sh" > $DOWNLOAD_DIR/$CRONJOB_NAME
             echo "$BACKUP_TIME * * * $HOME_DIR/backup.sh" >> $DOWNLOAD_DIR/$CRONJOB_NAME
+            echo "0 0 * * * $HOME_DIR/automated_testing.sh" >> $DOWNLOAD_DIR/$CRONJOB_NAME
             activate_cronjob
         fi
         ;;
@@ -259,6 +261,7 @@ case $CONFIG_PERIOD_UNIT in
             info_output "Pods where automatically killed every "$CONFIG_PERIOD_NUMBER$CONFIG_PERIOD_UNIT 
             echo "* * */${CONFIG_PERIOD_NUMBER} * * $HOME_DIR/chaosmonkey.sh" > $DOWNLOAD_DIR/$CRONJOB_NAME
             echo "$BACKUP_TIME * * * $HOME_DIR/backup.sh" >> $DOWNLOAD_DIR/$CRONJOB_NAME
+            echo "0 0 * * * $HOME_DIR/automated_testing.sh" >> $DOWNLOAD_DIR/$CRONJOB_NAME
             activate_cronjob
         fi
         ;;
@@ -303,6 +306,6 @@ else
     # Paste output from eliminated pod to logfile
     CURRENT_DATE=`date +%Y%m%d`
     CURRENT_TIME=`date +%H%M`
-    echo -e "[$ORANGE$CURRENT_DATE-$CURRENT_TIME$NOCOLOR]$LIGHTBLUE Namespace$NOCOLOR: $TARGET_NAMESPACE -$LIGHTBLUE Pod$NOCOLOR: $TARGET_POD" >> $LOG_DIR/chaosmonkey-log-color.txt
-    echo -e "[$CURRENT_DATE-$CURRENT_TIME] Namespace: $TARGET_NAMESPACE - Pod: $TARGET_POD" >> $LOG_DIR/chaosmonkey-log.txt
+    echo -e "[$ORANGE$CURRENT_DATE-$CURRENT_TIME$NOCOLOR]$LIGHTBLUE Namespace$NOCOLOR: $TARGET_NAMESPACE -$LIGHTBLUE Pod$NOCOLOR: $TARGET_POD" >> $LOG_DIR/chaosmonkey-color.log
+    echo -e "[$CURRENT_DATE-$CURRENT_TIME] Namespace: $TARGET_NAMESPACE - Pod: $TARGET_POD" >> $LOG_DIR/chaosmonkey.log
 fi

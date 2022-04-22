@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Added an automated testing script which will test the core components of the chaos-monkey [@buehlmannpa](https://github.com/buehlmannpa).
 - Added code into the backup script to create a backup from the existing logfile [@buehlmannpa](https://github.com/buehlmannpa).
 - Added an empty Readme where the repository will be described [@buehlmannpa](https://github.com/buehlmannpa).
 - Added functionality to eliminate pods and log to a defined logfile [@buehlmannpa](https://github.com/buehlmannpa).
