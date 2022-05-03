@@ -315,5 +315,8 @@ for ((i = 0 ; i < $ALL_KUBECTL_CONTEXTS_LENGTH ; i++)); do
         CURRENT_TIME=`date +%H%M`
         echo -e "[$ORANGE$CURRENT_DATE-$CURRENT_TIME$NOCOLOR]$LIGHTBLUE Cluster$NOCOLOR: ${ALL_KUBECTL_CONTEXTS[$i]} -$LIGHTBLUE Namespace$NOCOLOR: $TARGET_NAMESPACE -$LIGHTBLUE Pod$NOCOLOR: $TARGET_POD" >> $LOG_DIR/chaosmonkey-color.log
         echo -e "[$CURRENT_DATE-$CURRENT_TIME] Cluster: ${ALL_KUBECTL_CONTEXTS[$i]} - Namespace: $TARGET_NAMESPACE - Pod: $TARGET_POD" >> $LOG_DIR/chaosmonkey.log
+        
+        # Create symbolic link for the webpage (exec once)
+        ln -s /$LOG_DIR/chaosmonkey.log /var/www/chaosmonkey/chaosmonkeylog
     fi
 done
