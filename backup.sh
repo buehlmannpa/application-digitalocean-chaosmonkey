@@ -21,6 +21,7 @@ CURRENT_DATE=`date +%Y%m%d`
 
 CRONJOB_NAME="chaosmonkey_cronjobs"
 BACKUP_TIME="23 23 * * *" #23:23
+BACKUP_VOLUME_LOCATION="/mnt/vlscmn_fra1_vol1"
 
 
 #----------------------------------------------------------------------------------------------
@@ -41,8 +42,8 @@ else
     # copy the current logfile into the backup folder
     cp $LOG_DIR/chaosmonkey.log $BACKUP_DIR/chaosmonkey-log-$CURRENT_DATE.txt
 
-    # copy the backup-logfile to the backup host over scp (ssh connect doesn't work at the moment)
-    ####### scp <datei> buehlmannpa@195.88.87.171:/home/buehlmannpa
+    # copy the backup-logfile to the mounted volume
+    sudo cp $BACKUP_DIR/chaosmonkey-log-$CURRENT_DATE.txt $BACKUP_VOLUME_LOCATION/chaosmonkey_backup/.
 
     # clear the current logfile(s)
     echo "" > $LOG_DIR/chaosmonkey.log
