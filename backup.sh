@@ -30,8 +30,6 @@ BACKUP_VOLUME_LOCATION="/mnt/vlscmn_fra1_vol1"
 if [[ ! -f "$LOG_DIR/backup_ready" ]];
 then
     touch $LOG_DIR/backup_ready
-    # Create symbolic link for the webpage (exec once)
-    ln -s /data/chaos-monkey/chaosmonkey.log /var/www/chaosmonkey/chaosmonkeylog
 else
     echo "Backup is already initialized"
 
