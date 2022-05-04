@@ -3,10 +3,34 @@
 
 ![ChaosMonkey from Netflix](https://netflix.github.io/chaosmonkey/logo.png)
 
+
+- [How to use the ChaosMonkey](#how-to-use-cm)
+    - [Deploy the ChaosMonkey](#deploy-cm)
+    - [Config options](#config-options)
+    - [Config example](#config-examples)
+- [Script documentation](#script-documtation)
+    - [chaosmonkey.sh](#script-cm)
+        - [Multiple clusters](#script-cm-mc)
+        - [Hint Webpage](#script-cm-webpage)
+    - [get_kubeconfig.sh](#script-gk)
+        - [Add cluster](#script-gk-add)
+        - [Remove cluster](#script-gk-remove)
+    - [backup.sh](#script-bu)
+    - [automated_testing.sh](#script-at)
+
+
+---
+
+<a name="how-to-use-cm"></a>
+
 ## How to use the ChaosMonkey
+
+<a name="deploy-cm"></a>
 
 ### Deploy the ChaosMonkey
 To deploy the chaosmonkey, please use the followinf terraform module. [terraform-digitalocean-chaosmonkey](https://github.com/buehlmannpa/terraform-digitalocean-chaosmonkey)
+
+<a name="config-options"></a>
 
 ### Config options
 Examples are displayed under the following list in the *config example*
@@ -18,6 +42,8 @@ Examples are displayed under the following list in the *config example*
 |`"delete-period"`| A time period with a number and a unit. **m**<60; **h**<24;**d**<32  |
 |`"backup-time"`| A fixed time at which the backup should be performed (00:00) |
 
+<a name="config-examples"></a>
+
 ### Config example
 ```bash
 excluded-weekdays=SA,SO
@@ -27,7 +53,11 @@ delete-period=5m
 backup-time=23:23
 ```
 
+<a name="script-documtation"></a>
+
 ## Script documentation
+
+<a name="script-cm"></a>
 
 ### chaosmonkey.sh
 This script is the main component of the whole project. All the logic to eliminate pods and check the configuration parameters from above is located here.
@@ -45,20 +75,28 @@ The code is structured with the following keywords in the comments
 - FUNCTION: Definition of a function like *return info message*
 - PART: Executable steps like *eliminate a pod*
 
+<a name="script-cm-mc"></a>
+
 #### Multiple clusters
 
 The Chaos Monkey can manage one or more DigitalOcean kubernetes clusters simultaneously. For this purpose, a loop has been defined in PART *Eliminate Pods* that iterates through the list of all kubectl contexts. These are provided by the *get_kubeconfig.sh* script.
 
 To add or remove Kubernetes clusters, please follow the instructions in the description of the *get_kubeconfig.sh* script.
 
+<a name="script-cm-webpage"></a>
+
 #### HINT FOR THE WEBPAGE
 
 A symbolic link is created in the PART *Eliminate Pods* that the webpage could display the current logs of this file withing the apache root folder.
+
+<a name="script-gk"></a>
 
 ### get_kubeconfig.sh
 This script, as the name implies, gets the current kubeconfig (one or more) of the defined kubernetes clusters and sets them on the host so that the chaos monkey can select a namespace and pod on the current cluster. 
 
 To add or remove a kubernetes cluster to the Chaos Monkey you need to follow those steps: 
+
+<a name="script-gk-add"></a>
 
 #### Add a kuberentes cluster
 
@@ -70,7 +108,10 @@ $DOWNLOAD_DIR/doctl kubernetes cluster kubeconfig save <kubernets_cluster_name>
 ```
 4. Save the file and run the Chaos Monkey application. You can also wait for the script to run automatically via the cronjob.
 
-#### Add a kuberentes cluster
+<a name="script-gk-remove"></a>
+
+#### Remove a kuberentes cluster
+
 1. Open the get_kubeconfig script
 2. Navigate to the code line 29 / 30 with the *if then* statement
 3. Remove the line with the name of the Kubernetes cluster you want to delete, which looks like the following code segment
@@ -79,6 +120,7 @@ $DOWNLOAD_DIR/doctl kubernetes cluster kubeconfig save <kubernets_cluster_name>
 ```
 4. Save the file and run the Chaos Monkey application. You can also wait for the script to run automatically via the cronjob.
 
+<a name="script-bu"></a>
 
 ### backup.sh
 The backup script creates a backup of the Chaos Monkey log file every 24h and stores them in two separate locations (see list below). The current log file is cleaned up after the logs are backed up by the backup job. The script is triggered via a cronjob (**crontab -l**).
@@ -87,6 +129,7 @@ The backup script creates a backup of the Chaos Monkey log file every 24h and st
 |`"/data/chaos-monkey/backup/"` | Location to save the backup logs on the droplet itself. |
 |`"/mnt/vlscmn_fra1_vol1/"` | Location to save the backup logs on a external DigitalOcean volume.  |
 
+<a name="script-at"></a>
 
 ### automated_testing.sh
 The automated test script is testing 5 different verry straight forward easy tests
