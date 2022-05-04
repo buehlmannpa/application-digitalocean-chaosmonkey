@@ -4,7 +4,7 @@
 #
 #----------------------------------------------------------------------------------------------
 # IMPLEMENTATION
-#   version         0.0.1
+#   version         0.1.0
 #   author          Patrick Bühlmann
 #   copyright       Copyright (c) www.patrick21.ch
 #   license         GNU General Public License
@@ -12,7 +12,7 @@
 #----------------------------------------------------------------------------------------------
 
 #----------------------------------------------------------------------------------------------
-# var declaration
+# DECLARATION: var declaration
 #----------------------------------------------------------------------------------------------
 LOG_DIR="/data/chaos-monkey"
 BACKUP_DIR="/data/chaos-monkey/backup"
@@ -25,7 +25,7 @@ BACKUP_VOLUME_LOCATION="/mnt/vlscmn_fra1_vol1"
 
 
 #----------------------------------------------------------------------------------------------
-# Configure backup job (once at startup)
+# PART: Configure backup job (once at startup)
 #----------------------------------------------------------------------------------------------
 if [[ ! -f "$LOG_DIR/backup_ready" ]];
 then
@@ -35,7 +35,7 @@ else
 
 
 #----------------------------------------------------------------------------------------------
-# Backup the current logfile (every day)
+# PART: Backup the current logfile (every day)
 #----------------------------------------------------------------------------------------------
     #chaosmonkey-log-<date>.txt
 
@@ -43,7 +43,7 @@ else
     cp $LOG_DIR/chaosmonkey.log $BACKUP_DIR/chaosmonkey-log-$CURRENT_DATE.txt
 
     # copy the backup-logfile to the mounted volume
-    sudo cp $BACKUP_DIR/chaosmonkey-log-$CURRENT_DATE.txt $BACKUP_VOLUME_LOCATION/chaosmonkey_backup/.
+    sudo cp $BACKUP_DIR/chaosmonkey-log-$CURRENT_DATE.txt $BACKUP_VOLUME_LOCATION/.
 
     # clear the current logfile(s)
     echo "" > $LOG_DIR/chaosmonkey.log

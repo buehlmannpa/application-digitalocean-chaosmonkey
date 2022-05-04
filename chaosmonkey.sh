@@ -34,7 +34,7 @@ EOF
 echo -e "\033[0m"
 
 #----------------------------------------------------------------------------------------------
-# var declaration
+# DECLARATION: var declaration
 #----------------------------------------------------------------------------------------------
 LOG_DIR="/data/chaos-monkey"
 DOWNLOAD_DIR="/home/chaosmonkey/download"

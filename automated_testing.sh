@@ -11,7 +11,10 @@
 #
 #----------------------------------------------------------------------------------------------
 
-BACKUP_DIR="/data/chaos-monkey/backup"
+#----------------------------------------------------------------------------------------------
+# DECLARATION: var declaration
+#----------------------------------------------------------------------------------------------
+LOG_DIR="/data/chaos-monkey"
 
 IP_ADDRESS=$(hostname -I | awk '{print $1}')
 K8S_HOST_LIST=($(kubectl get nodes |grep -v "NAME" |awk '{print $1}'))
@@ -76,7 +79,7 @@ echo $PODS_YELB_LENGTH
 
 if [[ $PODS_SOCKSHOP_LENGTH -gt 4 ]];
 then
-    if [[ $PODS_ONLINEBOUTIQUE_LENGTH -gt 4 ]];
+    if [[ $PODS_ONLINEBOUTIQUE_LENGTH -gt 2 ]];
     then
         if [[ $PODS_YELB_LENGTH -gt 2 ]];
         then  
@@ -86,7 +89,7 @@ then
 fi
 
 #----------------------------------------------------------------------------------------------
-# Create Test output
+# PART: Create Test output
 #----------------------------------------------------------------------------------------------
 CURRENT_DATE=`date +%Y%m%d`
 
@@ -101,7 +104,7 @@ then
         echo "A003: $status_A003"
         echo "A004: $status_A004"
         echo "A005: $status_A005"
-    } >> $BACKUP_DIR/test_error.log
+    } >> $LOG_DIR/test_error.log
 fi
 
 {  
@@ -113,4 +116,4 @@ fi
     echo "A003: $status_A003"
     echo "A004: $status_A004"
     echo "A005: $status_A005"
-} > $BACKUP_DIR/test_output.log
+} > $LOG_DIR/test_output.log
