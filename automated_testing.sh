@@ -64,29 +64,41 @@ fi
 #----------------------------------------------------------------------------------------------
 status_A005="NOK"
 
-PODS_SOCKSHOP=($(kubectl get pods --namespace sockshop |grep -v "NAME" |awk '{print $1}'))
-PODS_SOCKSHOP_LENGTH=${#PODS_SOCKSHOP[@]}
+NAMESPACE_SOCKSHOP=$(kubectl get namespaces |grep -v "NAME" |grep "sockshop" |awk '{print $1}')
+NAMESPACE_ONLINEBOUTIQUE=$(kubectl get namespaces |grep -v "NAME" |grep "onlineboutique" |awk '{print $1}')
+NAMESPACE_YELB=$(kubectl get namespaces |grep -v "NAME" |grep "yelb" |awk '{print $1}')
 
-PODS_ONLINEBOUTIQUE=($(kubectl get pods --namespace onlineboutique |grep -v "NAME" |awk '{print $1}'))
-PODS_ONLINEBOUTIQUE_LENGTH=${#PODS_ONLINEBOUTIQUE[@]}
-
-PODS_YELB=($(kubectl get pods --namespace yelb |grep -v "NAME" |awk '{print $1}'))
-PODS_YELB_LENGTH=${#PODS_YELB[@]}
-
-echo $PODS_SOCKSHOP_LENGTH
-echo $PODS_ONLINEBOUTIQUE_LENGTH
-echo $PODS_YELB_LENGTH
-
-if [[ $PODS_SOCKSHOP_LENGTH -gt 4 ]];
+if [[ ! -z "$NAMESPACE_SOCKSHOP" ]];
 then
-    if [[ $PODS_ONLINEBOUTIQUE_LENGTH -gt 2 ]];
+    if [[ ! -z "$NAMESPACE_ONLINEBOUTIQUE" ]];
     then
-        if [[ $PODS_YELB_LENGTH -gt 2 ]];
-        then  
+        if [[ ! -z "$NAMESPACE_YELB" ]];
+        then
             status_A005="OK"
         fi
     fi
 fi
+
+######## DOES NOT WORK BECAUSE OF THE DEMO-APPLICATION ISSUE WITH DIGITALOCEAN
+#PODS_SOCKSHOP=($(kubectl get pods --namespace sockshop |grep -v "NAME" |awk '{print $1}'))
+#PODS_SOCKSHOP_LENGTH=${#PODS_SOCKSHOP[@]}
+#
+#PODS_ONLINEBOUTIQUE=($(kubectl get pods --namespace onlineboutique |grep -v "NAME" |awk '{print $1}'))
+#PODS_ONLINEBOUTIQUE_LENGTH=${#PODS_ONLINEBOUTIQUE[@]}
+#
+#PODS_YELB=($(kubectl get pods --namespace yelb |grep -v "NAME" |awk '{print $1}'))
+#PODS_YELB_LENGTH=${#PODS_YELB[@]}
+#
+#if [[ $PODS_SOCKSHOP_LENGTH -gt 1 ]];
+#then
+#    if [[ $PODS_ONLINEBOUTIQUE_LENGTH -gt 1 ]];
+#    then
+#        if [[ $PODS_YELB_LENGTH -gt 1 ]];
+#        then  
+#            status_A005="OK"
+#        fi
+#    fi
+#fi
 
 #----------------------------------------------------------------------------------------------
 # PART: Create Test output

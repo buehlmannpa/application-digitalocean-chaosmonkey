@@ -40,10 +40,10 @@ else
     #chaosmonkey-log-<date>.txt
 
     # copy the current logfile into the backup folder
-    cp $LOG_DIR/chaosmonkey.log $BACKUP_DIR/chaosmonkey-log-$CURRENT_DATE.txt
+    cp $LOG_DIR/chaosmonkey.log $BACKUP_DIR/chaosmonkey-log-$CURRENT_DATE.log
 
     # copy the backup-logfile to the mounted volume
-    sudo cp $BACKUP_DIR/chaosmonkey-log-$CURRENT_DATE.txt $BACKUP_VOLUME_LOCATION/.
+    sudo cp $BACKUP_DIR/chaosmonkey-log-$CURRENT_DATE.log $BACKUP_VOLUME_LOCATION/.
 
     # clear the current logfile(s)
     echo "" > $LOG_DIR/chaosmonkey.log
