@@ -5,6 +5,7 @@
 
 
 - [How to use the ChaosMonkey](#how-to-use-cm)
+    - [Preparation](#preparation)
     - [Deploy the ChaosMonkey](#deploy-cm)
     - [Config options](#config-options)
     - [Config example](#config-examples)
@@ -24,6 +25,23 @@
 <a name="how-to-use-cm"></a>
 
 ## How to use the ChaosMonkey
+
+<a name="preparation"></a>
+
+### Preparation
+
+1. Get DigitalOcean token to access the account via doctl.
+    1. Login to DigitalOcean
+    2. Navigate to API and then to token/key
+    3. Generate a new token
+    4. Copy and save the generated token
+2. Suspend the token for Terraform. There are two ways to do this
+    1. The token will appear in the environment variables of the host. Terraform will automatically reconfigure the variable<br/> ``export TF_VAR_do_token=<token>``
+    2. specify the token inside the terraform command.<br/> ``terraform apply -var do_token="<token>"``
+3. Create a new ssh key and use it with terraform to access the droplets.
+    1. Create a new ssh key and save it in your .ssh folder<br/> ``ssh-keygen -t rsa -b 4096``
+    2. Specify the path of the files (public and private key) in the environment variable of your system<br/> ``export TF_VAR_pvt_key=</path/to/.ssh/private_key> && export TF_VAR_pub_key=</path/to/.ssh/public_key>``
+    3. Or set the path within the terraform command instead of the environment variable <br/> ``terraform apply -var do_token="<token> -var pvt_key="path/private_key" -var pub_key="path/public_key"``
 
 <a name="deploy-cm"></a>
 
