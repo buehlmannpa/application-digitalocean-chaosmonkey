@@ -105,7 +105,7 @@ fi
 #----------------------------------------------------------------------------------------------
 CURRENT_DATE=`date +%Y%m%d`
 
-if [[ $status_A001 -eq "NOK" || $status_A002 -eq "NOK" || $status_A003 -eq "NOK" || $status_A004 -eq "NOK" || $status_A005 -eq "NOK" ]];
+if [[ "$status_A001" == "NOK" || "$status_A002" == "NOK" || "$status_A003" == "NOK" || "$status_A004" == "NOK" || "$status_A005" == "NOK" ]];
 then
     {  
         echo "- - - - - - - - - - - - - -"
