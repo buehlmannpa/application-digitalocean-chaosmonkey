@@ -46,7 +46,7 @@
 <a name="deploy-cm"></a>
 
 ### Deploy the ChaosMonkey
-To deploy the chaosmonkey, please use the followinf terraform module. [terraform-digitalocean-chaosmonkey](https://github.com/buehlmannpa/terraform-digitalocean-chaosmonkey)
+To deploy the chaosmonkey, please use the following terraform module. [terraform-digitalocean-chaosmonkey](https://github.com/buehlmannpa/terraform-digitalocean-chaosmonkey)
 
 <a name="config-options"></a>
 
